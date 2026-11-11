@@ -1,8 +1,9 @@
-from fastapi import APIRouter,Depends,Cookie,Response,Request,HTTPException
+from fastapi import APIRouter,Depends,HTTPException
 from sqlalchemy.orm import Session
 from Database.DB_connection import get_db
 from Security.JWTAuth import is_valid_user
-from schemas.schemasData.UserSchema import LoginRequest, tokenResponse , RegisterRequest ,MessageResponse, UserUpdateRequest
+from schemas.schemasData.UserSchema import LoginRequest, tokenResponse , RegisterRequest , UserUpdateRequest
+from schemas.schemasData.MessageResponseSchema import MessageResponse
 from service import UserService
 
 
@@ -33,3 +34,34 @@ def updateUser(user_id: int, update_data: UserUpdateRequest , db: Session = Depe
 def deleteUser(user_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
     
     return UserService.DeleteUser(user_id, db)
+
+@router.patch("/user/deactivate/{user_id}", response_model= MessageResponse)
+def deactivateUser(user_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    
+    return UserService.deactivate_user(user_id, db)
+
+@router.Patch("/user/activate/{user_id}", response_model= MessageResponse)
+def activateUser(user_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    return UserService.activate_user(user_id, db)
+
+@router.get("/user/get_by_id/{user_id}", response_model= MessageResponse)
+def getUserById(user_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin","user"]))):
+    return UserService.get_user_by_id(user_id, db)
+
+@router.get("/user/get_all", response_model= MessageResponse)
+def getAllUsers(db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    
+    return UserService.get_all_users(db)
+
+@router.get("/user/get_by_role/{role_name}", response_model= MessageResponse)
+def getUsersByRole(role_name: str, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    
+    return UserService.get_users_by_role(role_name, db) 
+
+@router.patch("/user/promote/{user_id}/{role_id}", response_model= MessageResponse)
+def promoteUser(user_id: int, role_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    return UserService.PromoteUser(user_id, role_id, db)
+
+@router.patch("/user/demote/{user_id}/{role_id}", response_model= MessageResponse)
+def demoteUser(user_id: int, role_id: int, db: Session = Depends(get_db), session_user_id: int = Depends(is_valid_user(required_role=["admin"]))):
+    return UserService.DemoteUser(user_id, role_id, db)
