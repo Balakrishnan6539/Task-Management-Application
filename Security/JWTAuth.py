@@ -1,14 +1,22 @@
 import jwt
 import os
 from datetime import datetime,timedelta, timezone
-from fastapi import Cookie,HTTPException
+from fastapi import Cookie,HTTPException,Depends
+from dotenv import load_dotenv
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 
+load_dotenv()
 
-secret_key = os.getenv("JWT_SECRET")
+secret_key = os.getenv("SECRET_KEY")
 Algorithm = os.getenv("ALGORITHM")
-exp_minutes = int(os.getenv("TOKEN_EXPIRATION"))  
-user_instance = {}
+exp_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))  
+
+if not secret_key:
+    raise RuntimeError("secret key is missing or not loaded")
+
+security= HTTPBearer(auto_error=False)
+
 
 def create_jwt_token(userid,user_role):
     exp_time = datetime.now(timezone.utc) + timedelta(minutes=exp_minutes)
@@ -20,15 +28,14 @@ def create_jwt_token(userid,user_role):
     }
 
     token = jwt.encode(payload, secret_key, algorithm=Algorithm)
-    print("Generated JWT Token:", token)
+
     return token
 
 def decode_jwt_token(token):
     try:
         decoded_payload = jwt.decode(token, secret_key, algorithms=[Algorithm])
-        user_instance["userid"] = decoded_payload["userid"]
-        user_instance["user_role"] = decoded_payload["user_role"]
-        return user_instance
+
+        return decoded_payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
@@ -36,28 +43,26 @@ def decode_jwt_token(token):
     
 
 
-def get_user_id( token: str = Cookie(None)):
-    if not token:
+def get_current_user(cred : HTTPAuthorizationCredentials = Depends(security)):
+    if not cred:
         raise HTTPException(status_code=401, detail="Token is missing")
-    try:
-        decoded_user = decode_jwt_token(token)
-        return int(decoded_user["userid"])
-    except HTTPException as e:
-        raise HTTPException(status_code=401, detail=f" {e.detail}")
 
-
-def get_current_user(token: str):
-    if not token:
-        raise HTTPException(status_code=401, detail="Token is missing")
-    try:
-        return decode_jwt_token(token)
-    except HTTPException as e:
-        raise HTTPException(status_code=401, detail=f" {e.detail}")
-
-
-def is_valid_user(required_role: list , token: str = Cookie(None)):
+    token = cred.credentials
+    return decode_jwt_token(token)
     
-    user_data = get_current_user(token) 
-    if user_data["user_role"] not in required_role:
-        raise HTTPException(status_code=403, detail="User does not have the required role")
-    return user_data["userid"]
+
+def get_user_id( user_data : dict = Depends(get_current_user)):
+    if not user_data:
+        raise HTTPException(status_code=401, detail="user data is not present in token")
+
+    return int(user_data["userid"])
+
+
+def is_valid_user(required_role: list):
+
+    def role_checker(user_data: dict = Depends(get_current_user)):
+        if user_data["user_role"] not in required_role:
+            raise HTTPException(status_code=403, detail="you dont have the required role to access")
+        return int(user_data["userid"])
+    
+    return role_checker

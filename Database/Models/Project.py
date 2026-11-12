@@ -11,12 +11,12 @@ class Project(Base):
     description = Column(String)
     start_date = Column(DateTime)
     end_date = Column(DateTime)
-    status = Column(String, ForeignKey("status.status_name", ondelete="SET NULL"))
+    status = Column(Integer, ForeignKey("status.status_id", ondelete="SET NULL"), default=1)
     created_by = Column(Integer)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     tasks = relationship("Task", back_populates="project")
-    users = relationship("Project_Member", back_populates="project")
+    project_members = relationship("Project_Member", back_populates="project")
     status_info = relationship("Status", back_populates="projects")
     

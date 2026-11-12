@@ -1,4 +1,5 @@
 from schemas.Validator import FieldValidatorClass
+from datetime import datetime
 from typing import Optional
 
 
@@ -14,7 +15,6 @@ class RegisterRequest(FieldValidatorClass):
     password : str
 
 
-
 class UserUpdateRequest(FieldValidatorClass):
     username : Optional[str] = None
     mobile_number : Optional[str] = None
@@ -23,10 +23,24 @@ class UserUpdateRequest(FieldValidatorClass):
     new_password : Optional[str] = None
 
 
+class UserRoleRequest(FieldValidatorClass):
+    user_id : str
+    role_id : str
+
+
 class tokenResponse(FieldValidatorClass):
     token: str
 
+class UserResponse(FieldValidatorClass):
+    user_id : int
+    username : str
+    mobile_number : str
+    email : str
+    password : str
+    role_id : int
+    is_active : bool
+    created_at : datetime
+    updated_at : datetime
+    updated_by : Optional[int]=None
 
-class MessageResponse(FieldValidatorClass):
-    message: str
 

@@ -20,7 +20,7 @@ class User(Base):
 
     role = relationship("Role", back_populates="users")
     projects = relationship("Project_Member", back_populates="user")
-    tasks = relationship("Task", back_populates="assigned_to")
+    tasks = relationship("Task", back_populates="assigned_user")
     created_tasks = relationship("Task", back_populates="creator")
     comments = relationship("Task_Comments", back_populates="user")
     activity_logs = relationship("Activity_log", back_populates="user")

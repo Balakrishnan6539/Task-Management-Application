@@ -17,7 +17,7 @@ def get_db():
     finally:
         db.close()
 
-def get_db_and_user_id(session_user_id: int = Depends(get_user_id()), db: Session = Depends(get_db)):
+def get_db_and_user_id(session_user_id: int = Depends(get_user_id), db: Session = Depends(get_db)):
     db.info['session_user_id'] = session_user_id
     try:
         yield db

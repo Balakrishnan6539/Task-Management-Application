@@ -139,7 +139,7 @@ def ProjectWiseStat(db: Session):
                 "project_name": project.project_namer,
                 "total_task": total_task,
                 "completed": completed,
-                "progess": progress,
+                "progress": progress,
                 "not_started": pending,
                 "progress_percent": progress
             }
