@@ -5,6 +5,6 @@ from Database.DB_connection import Base, engine
 Base.metadata.create_all(bind=engine)
 
 
-app = FastAPI()
+app = FastAPI(title="Team Management Application",)
 app.include_router(UserRouter.userRouter)
 app.include_router(ProjectRouter.projectRouter)

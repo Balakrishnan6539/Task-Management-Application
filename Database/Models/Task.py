@@ -22,5 +22,5 @@ class Task(Base):
     assigned_user = relationship("User", foreign_keys=[assigned_to], back_populates="tasks")
     creator = relationship("User", foreign_keys=[created_by], back_populates="created_tasks")
     priority_rel = relationship("Priorities", back_populates="tasks")
-    status_rel = relationship("Task_Status", back_populates="tasks")
+    status_rel = relationship("Status", back_populates="tasks")
     comments = relationship("Task_Comments", back_populates="task")

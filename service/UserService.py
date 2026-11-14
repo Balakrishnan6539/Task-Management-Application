@@ -83,6 +83,9 @@ def assign_role_to_user(user_id: int, role_id: int, db: Session):
     if not role:
         raise HTTPException(status_code=404, detail="Role not found")
 
+    if user.role_id==role_id:
+        raise HTTPException(status_code=400, detail= f"Already user is {user.role}. please select other role if you want to promote or demote the user")
+
     user.role_id = role_id
     db.commit()
     db.refresh(user)
@@ -106,30 +109,3 @@ def get_users_by_role(role_name: str, db: Session):
     users = db.query(User).filter(User.role_id == role.role_id).all()
     return users
 
-def PromoteUser(user_id: int, db: Session , role_id: int):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    role = db.query(Role).filter(Role.role_id == role_id).first()
-    if not role:
-        raise HTTPException(status_code=404, detail="Role not found")
-
-    user.role_id = role_id
-    db.commit()
-    db.refresh(user)
-    return {"message": f"User '{user.username}' promoted to role '{role.role_name}' successfully"}
-
-def DemoteUser(user_id: int, db: Session , role_id: int):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    role = db.query(Role).filter(Role.role_id == role_id).first()
-    if not role:
-        raise HTTPException(status_code=404, detail="Role not found")
-
-    user.role_id = role_id
-    db.commit()
-    db.refresh(user)
-    return {"message": f"User '{user.username}' demoted to role '{role.role_name}' successfully"}

@@ -3,7 +3,7 @@ import os
 from datetime import datetime,timedelta, timezone
 from fastapi import Cookie,HTTPException,Depends
 from dotenv import load_dotenv
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Response
 
 
 load_dotenv()
@@ -15,11 +15,12 @@ exp_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 if not secret_key:
     raise RuntimeError("secret key is missing or not loaded")
 
-security= HTTPBearer(auto_error=False)
 
 
 def create_jwt_token(userid,user_role):
     exp_time = datetime.now(timezone.utc) + timedelta(minutes=exp_minutes)
+    print(user_role)
+    print(userid)
     payload = {
         "userid": userid,
         "user_role": user_role,
@@ -28,6 +29,7 @@ def create_jwt_token(userid,user_role):
     }
 
     token = jwt.encode(payload, secret_key, algorithm=Algorithm)
+
 
     return token
 
@@ -43,11 +45,10 @@ def decode_jwt_token(token):
     
 
 
-def get_current_user(cred : HTTPAuthorizationCredentials = Depends(security)):
-    if not cred:
+def get_current_user(token : str = Cookie(None)):
+    if not token:
         raise HTTPException(status_code=401, detail="Token is missing")
 
-    token = cred.credentials
     return decode_jwt_token(token)
     
 

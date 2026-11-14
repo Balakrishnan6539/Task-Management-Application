@@ -1,6 +1,6 @@
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
-from Database.Models import  Project, Project_Member, Task
+from Database.Models import  Project, Project_Member, Task,Status
 from fastapi import HTTPException
 
 
@@ -15,8 +15,6 @@ def create_project(project_data: Project, db: Session, session_user_id: int):
         description=project_data.description,
         start_date=project_data.start_date,
         end_date=project_data.end_date,
-        status_id=project_data.status_id,
-        priority_id=project_data.priority_id,
         created_by=session_user_id
     )
     db.add(new_project)
@@ -62,9 +60,10 @@ def ChangeStatus(project_id: int, status_id: int, db: Session):
         raise HTTPException(status_code=404, detail="Project not found")
 
     project.status_id = status_id
+    status=db.query(Status.status_name).filter(Status.status_id== status_id).scalar()
     db.commit()
     db.refresh(project)
-    return {"message": "Project status updated to " + str(status_id) + " successfully"}
+    return {"message": f"Project status updated to {status} successfully"}
 
 def AssignMemberToProject(project_id: int, member_id: int, db: Session):
     project = db.query(Project).filter(Project.project_id == project_id).first()
@@ -128,9 +127,10 @@ def ProjectWiseStat(db: Session):
 
         pending = tasks.filter(func.lower(Task.status)=="not started").count()
 
-        progress = (completed/total_task)*100
 
-        if total_task == 0:
+        if total_task>0:
+            progress = (completed/total_task)*100
+        else:
             progress=0
 
         result.append(

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime,Date
 from sqlalchemy.orm import relationship
 from Database.DB_connection import Base
 from datetime import datetime, timezone
@@ -9,8 +9,8 @@ class Project(Base):
     project_id = Column(Integer, primary_key=True, index=True)
     project_name = Column(String, unique=True, index=True)
     description = Column(String)
-    start_date = Column(DateTime)
-    end_date = Column(DateTime)
+    start_date = Column(Date)
+    end_date = Column(Date)
     status = Column(Integer, ForeignKey("status.status_id", ondelete="SET NULL"), default=1)
     created_by = Column(Integer)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
