@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime,Date
 from sqlalchemy.orm import relationship
-from datetime import datetime,timezone
+from datetime import datetime,timezone,date
 from Database.DB_connection import Base
 
 class Task(Base):
@@ -13,8 +13,9 @@ class Task(Base):
     title = Column(String)
     description = Column(String)
     priority = Column(String,ForeignKey("priorities.priority_name", ondelete="SET NULL"))
-    status = Column(String,ForeignKey("status.status_name", ondelete="SET NULL"))
-    deadline = Column(DateTime, nullable=True)
+    status = Column(Integer,ForeignKey("status.status_id", ondelete="SET NULL"))
+    start_date = Column(Date, default=date.today)
+    end_date=Column(Date,nullable=True)
     created_at = Column(DateTime, default=datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 

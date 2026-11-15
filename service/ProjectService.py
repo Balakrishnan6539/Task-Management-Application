@@ -1,4 +1,4 @@
-from sqlalchemy import case, func
+
 from sqlalchemy.orm import Session
 from Database.Models import  Project, Project_Member, Task,Status
 from fastapi import HTTPException
@@ -121,11 +121,11 @@ def ProjectWiseStat(db: Session):
 
         total_task= tasks.count()
 
-        completed= tasks.filter(func.lower(Task.status) == "completed").count()
+        completed= tasks.filter(Task.status == 3).count()
 
-        progress = tasks.filter(func.lower(Task.status) == "in progress").count()
+        progress = tasks.filter(Task.status == 2).count()
 
-        pending = tasks.filter(func.lower(Task.status)=="not started").count()
+        pending = tasks.filter(Task.status==1).count()
 
 
         if total_task>0:
@@ -136,7 +136,7 @@ def ProjectWiseStat(db: Session):
         result.append(
             {
                 "project_id" : project.project_id,
-                "project_name": project.project_namer,
+                "project_name": project.project_name,
                 "total_task": total_task,
                 "completed": completed,
                 "progress": progress,
