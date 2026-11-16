@@ -15,7 +15,7 @@ class TaskRequest(FieldValidatorClass):
 class TaskResponse(FieldValidatorClass):
     task_id:int
     project_id:int
-    assigned_to: int
+    assigned_to: int | None = None
     created_by:int
     title:str
     description:str

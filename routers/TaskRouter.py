@@ -8,7 +8,7 @@ from schemas.schemasData.TaskSchema import TaskCommentResponse,TaskCommentsreque
 from service import TaskService
 
 
-taskRouter=APIRouter(tags="Task Router")
+taskRouter=APIRouter(tags=["Task Router"])
 
 @taskRouter.post("/task/create", response_model=MessageResponse)
 def CreateTask(Task_data: TaskRequest,session_user_id: int =Depends(is_valid_user([TeamRole.PM])),db : Session = Depends(get_db)):
@@ -22,12 +22,12 @@ def getTaskById(task_id:int,session_user_id:int = Depends(is_valid_user([TeamRol
 def getAllTaskInProject(project_id : int , session_user_id : int = Depends(is_valid_user([TeamRole.ADMIN,TeamRole.PM])),db : Session = Depends(get_db)):
     return TaskService.getAllTaskInProject(project_id,db)
 
-@taskRouter.patch("/task/update/{task_id}",response_model=MessageResponse)
+@taskRouter.patch("/task/update/{task_id}",response_model=TaskResponse)
 def updateTask(task_id:int,task_data:TaskUpdaterequest,session_user_id:int = Depends(is_valid_user([TeamRole.ADMIN,TeamRole.PM])),db : Session= Depends(get_db)):
     return TaskService.updateTask(task_data,task_id,db)
 
 @taskRouter.delete("/task/delete/{task_id}", response_model=MessageResponse)
-def deleteTask(task_id: int , session_user_id: int = Depends(is_valid_user(TeamRole.ADMIN,TeamRole.PM)),db : Session = Depends(get_db)):
+def deleteTask(task_id: int , session_user_id: int = Depends(is_valid_user([TeamRole.ADMIN,TeamRole.PM])),db : Session = Depends(get_db)):
     return TaskService.deleteTask(task_id,db)
 
 @taskRouter.patch("/task/assign/{task_id}/{user_id}", response_model=MessageResponse)

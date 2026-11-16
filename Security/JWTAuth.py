@@ -62,6 +62,8 @@ def get_user_id( user_data : dict = Depends(get_current_user)):
 def is_valid_user(required_role: list):
 
     def role_checker(user_data: dict = Depends(get_current_user)):
+        print(user_data["user_role"])
+        print(required_role)
         if user_data["user_role"] not in required_role:
             raise HTTPException(status_code=403, detail="you dont have the required role to access")
         return int(user_data["userid"])

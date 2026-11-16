@@ -5,12 +5,15 @@ from fastapi import HTTPException
 
 def CreateTask(task : Task, db: Session, sesion_user_id : int):
 
+    project=db.query(Project).filter(task.project_id==Project.project_id).first()
+    if not project:
+        raise HTTPException(status_code=400, detail="project not found")
+
     existing_task=db.query(Task).filter(Task.title==task.title,Task.project_id==task.project_id).first()
     if existing_task:
         raise HTTPException(status_code=403, detail="task title alread")
     new_task=Task(
         project_id=task.project_id,
-        assigned_to = task.assigned_to,
         title = task.title,
         description=task.description,
         priority=task.priority,
@@ -20,6 +23,7 @@ def CreateTask(task : Task, db: Session, sesion_user_id : int):
         created_by=sesion_user_id
     )
 
+    db.info["session_user_id"]=sesion_user_id
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
@@ -154,7 +158,7 @@ def getComment(comment_id : int,db : Session):
 
 def getTaskCommentByTask(task_id:int , db: Session):
 
-    task=db.query(Task).filter(Task.task_id).first()
+    task=db.query(Task).filter(Task.task_id==task_id).first()
     if not task:
         raise HTTPException(status_code=400, detail="there is no task like you metioned")
 

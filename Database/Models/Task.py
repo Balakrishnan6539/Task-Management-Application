@@ -12,7 +12,7 @@ class Task(Base):
     created_by = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"))
     title = Column(String)
     description = Column(String)
-    priority = Column(String,ForeignKey("priorities.priority_name", ondelete="SET NULL"))
+    priority = Column(Integer,ForeignKey("priorities.priority_id", ondelete="SET NULL"))
     status = Column(Integer,ForeignKey("status.status_id", ondelete="SET NULL"))
     start_date = Column(Date, default=date.today)
     end_date=Column(Date,nullable=True)
